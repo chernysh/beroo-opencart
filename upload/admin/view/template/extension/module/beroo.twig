@@ -1,0 +1,263 @@
+{{ header }}{{ column_left }}
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="pull-right">
+                <button type="submit" form="form-beroo" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+                <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+            <h1>{{ heading_title }}</h1>
+        </div>
+    </div>
+    <div class="container-fluid">
+        {% if error_warning %}
+        <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+         {% endif %}
+        {% if success %}
+        <div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ success }}
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+         {% endif %}
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-beroo" class="form-horizontal">
+                    
+					<div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-name">Ваш домен Beroo</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="module_beroo_domain" value="{{ module_beroo_domain }}" placeholder="{{ entry_domain }}" id="input-domain" class="form-control" />
+                            {% if error_domain %}
+                            <div class="text-danger">{{ error_domain }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+					
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-limit">Ключ форми</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="module_beroo_key" value="{{ module_beroo_key }}" placeholder="{{ entry_key }}" id="input-key" class="form-control" />
+                            {% if error_key %}
+                            <div class="text-danger">{{ error_key }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+					
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-status">Статус</label>
+                        <div class="col-sm-10">
+                            <select name="module_beroo_status" id="input-status" class="form-control">
+                                <option value="1" {% if module_beroo_status %}selected="selected"{% endif %}>Увімкнено</option>
+                                <option value="0" {% if not module_beroo_status %}selected="selected"{% endif %}>Вимкнено</option>
+                            </select>
+                        </div>
+                    </div>
+					
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-status">Прив'язка товару</label>
+                        <div class="col-sm-10">
+							<input type="radio" id="module_beroo_product_bind_id" name="module_beroo_product_bind" value="id" {% if module_beroo_product_bind == 'id' %}checked{% endif %}> <label style="font-weight: normal; vertical-align: middle;" for="module_beroo_product_bind_id">ID (рекомендовано)</label><br>
+							<input type="radio" id="module_beroo_product_bind_model" name="module_beroo_product_bind" value="model" {% if module_beroo_product_bind == 'model' %}checked{% endif %}> <label style="font-weight: normal; vertical-align: middle;" for="module_beroo_product_bind_model">Модель</label><br>
+							<input type="radio" id="module_beroo_product_bind_sku" name="module_beroo_product_bind" value="sku" {% if module_beroo_product_bind == 'sku' %}checked{% endif %}> <label style="font-weight: normal; vertical-align: middle;" for="module_beroo_product_bind_sku">SKU</label>
+                        </div>
+                    </div>
+					
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-status">Мова товарів</label>
+                        <div class="col-sm-10">
+                            <select name="module_beroo_product_language" id="input-status" class="form-control">
+							{% for language in languages %}
+                                <option value="{{ language.language_id|e }}" {% if language.language_id == module_beroo_product_language %}selected{% endif %}>{{ language.name|e }}</option>
+							{% endfor %}
+                            </select>
+						</div>
+                    </div>
+
+					{% if module_beroo_domain and module_beroo_key %}
+					<div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-status">Зіставлення способів оплати</label>
+                        <div class="col-sm-10">
+							{% if beroo_payment_methods_error %}
+							<div class="alert alert-danger">{{ beroo_payment_methods_error }}</div>
+							{% endif %}
+							<table class="table" style="width: auto; margin-bottom: 0;">
+							<thead>
+								<tr>
+									<th width="250">В OpenCart</th>
+									<th width="250">В Beroo</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for payment_method in payment_methods %}
+								<tr>
+									<td>{{ payment_method.name }}</td>
+									<td><select name="module_beroo_match_payment_methods[{{ payment_method.code }}]" style="width:100%">
+										<option>---</option>
+										{% for beroo_payment_method in beroo_payment_methods %}
+										<option value="{{ beroo_payment_method.parameter|e }}" {% if match_payment_methods[payment_method.code] == beroo_payment_method.parameter %}selected{% endif %}>{{ beroo_payment_method.name|e }}</option>
+										{% endfor %}
+									</select></td>
+								</tr>
+								{% endfor %}
+							<tbody>
+							</table>
+                        </div>
+					</div>
+					
+					<div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-status">Зіставлення способів доставки</label>
+                        <div class="col-sm-10">
+							{% if beroo_shipping_methods_error %}
+							<div class="alert alert-danger">{{ beroo_shipping_methods_error }}</div>
+							{% endif %}
+							<table class="table" style="width: auto; margin-bottom: 0;">
+							<thead>
+								<tr>
+									<th width="250">В OpenCart</th>
+									<th width="250">В Beroo</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for shipping_method in shipping_methods %}
+								<tr>
+									<td>{{ shipping_method.name }}</td>
+									<td><select name="module_beroo_match_shipping_methods[{{ shipping_method.code }}]" style="width:100%">
+										<option>---</option>
+										{% for beroo_shipping_method in beroo_shipping_methods %}
+										<option value="{{ beroo_shipping_method.parameter|e }}" {% if match_shipping_methods[shipping_method.code] == beroo_shipping_method.parameter %}selected{% endif %}>{{ beroo_shipping_method.name|e }}</option>
+										{% endfor %}
+									</select></td>
+								</tr>
+								{% endfor %}
+							</tbody>
+							</table>
+                        </div>
+					</div>
+					{% endif %}
+					
+					<div class="form-group" style="padding-left: 15px;">
+						<button type="submit" form="form-beroo" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i>&nbsp; Зберегти</button>
+					</div>
+					
+					{% if module_beroo_domain and module_beroo_key %}
+					<div class="form-group" style="padding-left: 15px; border-bottom: 1px solid #ededed;">
+				   		<div class="btn btn-warning" id="fca-import-order"><i class="fa fa-refresh"></i>&nbsp; Синхронізувати всі товари</div>
+						<script src="view/javascript/beroo/sync.js"></script>
+						<link type="text/css" href="view/javascript/beroo/sync.css" rel="stylesheet" media="screen" />
+						<div id="importProductsUrl" style="display: none">{{ synchronize }}</div>
+						<div class="fca_ajax_result" style="display: none">Експортовано товарів: <span id="currentOffset">0</span>. Створено товарів з урахуванням варіацій: <span id="variationCount">0</span>. Час виконання: <span id="timeElapsed">0</span>. <span id="sd-finish" style="display: none">ЗАВЕРШЕНО!</span></div>
+						<div id="fc_api_project_box">
+							<div class="fca_preloader">
+								<div>Товари та категорії експортуються. Не закривайте браузер до завершення експорту.</div>
+								<div class="lds-default">
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					{% endif %}
+					
+					<h3 style="margin-top: 33px;">Імпорт залишків на складі з Beroo</h3>
+					<div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-feed">Посилання на YML-експорт</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="module_beroo_feed" value="{{ module_beroo_feed }}" placeholder="Посилання на YML-експорт" id="input-feed" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input_gen">Скрипт імпорту залишків</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="module_beroo_gen" value="{{ module_beroo_import_stock_script }}" id="input_gen" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input_gen">Команда Cron</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="module_beroo_gen" value="curl {{ module_beroo_import_stock_script }}" id="input_gen" class="form-control" disabled />
+                        </div>
+                    </div>
+					<div class="form-group" style="padding-left: 15px;">
+						<button type="submit" form="form-beroo" data-toggle="tooltip" class="btn btn-primary"><i class="fa fa-save"></i>&nbsp; Зберегти</button>
+					</div>
+					
+               		{% if module_beroo_domain and module_beroo_key %}
+               		<h3 style="margin-top: 33px;">Передавання статусів з Beroo на сайт</h3>
+               		<div class="alert alert-info" style="margin-bottom: 0;">У Beroo налаштуйте веб-хук:
+						<ul style="margin-bottom: 5px;">
+               			<li>Налаштування → Загальні налаштування та інтеграції → Інші сервіси → webhook → Додати</li>
+               			</ul>
+               			<strong>Дані веб-хука:</strong>
+						<ul>
+               			<li>Подія = Зміна статусу заявки</li>
+               			<li>Додайте умови:
+               				<ul>
+               					<li>Тип = Заявка онлайн</li>
+               					<li>Сайт = Поточний сайт (потрібно, якщо у вас кілька сайтів або маркетплейсів)</li>
+               				</ul>
+						</li>
+               			<li>URL для передавання webhook:<br>
+               			<input type="text" style="width: 100%" disabled value="{{ module_beroo_set_order_status }}">
+               			</li>
+               			<li>Інформація про заявку = Тільки статуси</li>
+               			</ul>
+               		</div>
+               		<h3 style="margin-top: 33px;">Створення замовлень з Beroo на сайті</h3>
+               		<div class="alert alert-info" style="margin-bottom: 0;">У Beroo налаштуйте веб-хук:
+						<ul>
+               			<li>Подія = Створення заявки (замовлення)</li>
+               			<li>URL для передавання webhook:<br>
+               			<input type="text" style="width: 100%" disabled value="{{ module_beroo_create_order }}">
+               			</li>
+               			</ul>
+               		</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label" for="input-status">Зіставлення статусів</label>
+						<div class="col-sm-10">
+							{% if beroo_statuses_error %}
+							<div class="alert alert-danger"><?php echo $beroo_statuses_error; ?></div>
+							{% endif %}	
+							<table class="table" style="width: auto; margin-bottom: 0;">
+							<thead>
+								<tr>
+									<th width="250">Статус Beroo</th>
+									<th width="250">Статус на сайті</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for beroo_status in beroo_statuses %}
+								<tr>
+									<td>{{ beroo_status.name }}</td>
+									<td><select name="module_beroo_match_order_statuses[{{ beroo_status.id }}]" style="width:100%">
+										<option>---</option>
+										{% for order_status in order_statuses %}
+										<option value="{{ order_status.order_status_id|e }}" {% if match_order_statuses[beroo_status.id] == order_status.order_status_id %}selected{% endif %}>{{ order_status.name|e }}</option>
+										{% endfor %}
+									</select></td>
+								</tr>
+								{% endfor %}
+							<tbody>
+							</table>
+						</div>
+					</div>
+					<div class="form-group" style="padding-left: 15px;">
+						<button type="submit" form="form-beroo" data-toggle="tooltip" class="btn btn-primary"><i class="fa fa-save"></i>&nbsp; Зберегти</button>
+					</div>
+               		{% endif %}				
+					
+                </form>
+            </div>            
+        </div>
+    </div>
+</div>
+{{ footer }}

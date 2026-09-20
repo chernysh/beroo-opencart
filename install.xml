@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+  <code>beroo</code>
+  <name>Інтеграція з CRM Beroo</name>
+  <version>6.7</version>
+  <author>Beroo</author>
+
+  <file path="catalog/controller/common/header.php">
+		<operation>
+			<search><![CDATA[$data['title']]]></search>
+			<add position="after"><![CDATA[
+			$this->document->addScript('catalog/view/javascript/beroo.js');
+			]]></add>
+		</operation>
+	</file>
+</modification>

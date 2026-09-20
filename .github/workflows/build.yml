@@ -1,0 +1,23 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ocmod:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package OCMOD
+        run: zip -r beroo.ocmod.zip install.xml upload
+      - name: Publish latest build
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest build (main)
+          files: beroo.ocmod.zip
