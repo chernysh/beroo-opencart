@@ -47,6 +47,9 @@ $(document).ready(function ($) {
 				setCurrentOffset(response['exported']);
 				setVariationCount(response['variationCount']);
 				setTimeElapsed(response['timeElapsed']);
+				if(response['errors'] && response['errors'].length){
+					resultDiv.append('<div style="color:#b00; margin-top:6px;">Помилки Beroo:<br>' + response['errors'].join('<br>') + '</div>');
+				}
 				if(response['finish']!=1){
 					getProducts();
 				}

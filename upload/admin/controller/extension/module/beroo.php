@@ -375,7 +375,7 @@ class ControllerExtensionModuleBeroo extends Controller
         }
 
         if ($this->berooLibrary->hasErrors()) {
-            $this->session->data['error'] = $this->berooLibrary->getErrors();
+            $this->session->data['error'] = implode('; ', (array)$this->berooLibrary->getErrors());
         } else {
             $this->session->data['success'] = 'Товари успішно синхронізовано!';
         }
@@ -403,7 +403,8 @@ class ControllerExtensionModuleBeroo extends Controller
 			'execution_time' => $execution_time,
 			'finish' => $finish,
 			'timeElapsed' => $timeElapsed,
-			'exported' => $exported
+			'exported' => $exported,
+			'errors' => $this->berooLibrary->hasErrors() ? $this->berooLibrary->getErrors() : [],
 		];
 		echo json_encode($result);
     }

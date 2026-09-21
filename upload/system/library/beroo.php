@@ -115,16 +115,26 @@ class Beroo
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);			
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
         $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curl_error = curl_error($ch);
         curl_close($ch);
 
-        $this->last_response = json_decode($response);
-        if ($this->last_response == 'error') {
-            $this->errors = $this->last_response['message'];
+        $this->last_response = json_decode($response, true);
+
+        if ($curl_error) {
+            $this->errors[] = 'Помилка з’єднання з Beroo: ' . $curl_error;
+        } elseif ($http_code == 0 || $http_code >= 400) {
+            $msg = (is_array($this->last_response) && isset($this->last_response['message']))
+                ? $this->last_response['message'] : $response;
+            $this->errors[] = 'Beroo відповів помилкою (HTTP ' . $http_code . '): ' . $msg;
+        } elseif (is_array($this->last_response) && array_key_exists('success', $this->last_response) && !$this->last_response['success']) {
+            $msg = isset($this->last_response['message']) ? $this->last_response['message'] : '';
+            $this->errors[] = 'Beroo відхилив запит: ' . $msg;
         }
 
-        return $this->last_response;		
+        return $this->last_response;
 	}
 	
 	private function executeApi($actionUrl, $params = array()){
