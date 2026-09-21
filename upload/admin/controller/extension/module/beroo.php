@@ -500,7 +500,16 @@ class ControllerExtensionModuleBeroo extends Controller
 	}
     
     private function createData($product_info) {
-        
+
+		// getProducts() (bulk "Sync" list) returns only summary columns — no
+		// description/meta. Reload the full product so description + SEO reach
+		// Beroo for both the Sync button and the on-edit event.
+		if(!isset($product_info['meta_description']) || !isset($product_info['description'])){
+			$full_info = $this->model_catalog_product->getProduct($product_info['product_id']);
+			if($full_info){
+				$product_info = array_merge($full_info, $product_info);
+			}
+		}
 		// product category
         $category_id = '';
 	    $category_name = '';
@@ -666,6 +675,11 @@ class ControllerExtensionModuleBeroo extends Controller
 					'name' => htmlspecialchars_decode($category_name),
 				],
 				'description' => htmlspecialchars_decode($product_info['description']),
+				'seo' => array(
+					'title' => htmlspecialchars_decode(isset($product_info['meta_title']) ? $product_info['meta_title'] : ''),
+					'description' => htmlspecialchars_decode(isset($product_info['meta_description']) ? $product_info['meta_description'] : ''),
+					'keywords' => htmlspecialchars_decode(isset($product_info['meta_keyword']) ? $product_info['meta_keyword'] : ''),
+				),
 				'images' => $product_images,
 				'params' => array_merge($product_attributes_beroo,$product_options),
 				'url' => $site_url.'/index.php?route=product/product&product_id='.$product_info['product_id'],
