@@ -490,7 +490,7 @@ class ControllerExtensionModuleBeroo extends Controller
 		$this->load->model('catalog/product');
 
 		// idempotency: never create the same Beroo order twice (retry-safe)
-		$existing = $this->db->query("SELECT order_id FROM `" . DB_PREFIX . "order` WHERE custom_field LIKE '%\"beroo_external_id\":\"" . $this->db->escape($external_id) . "\"%' LIMIT 1");
+		$existing = $this->db->query("SELECT order_id FROM `" . DB_PREFIX . "order` WHERE custom_field LIKE '%\"beroo_external_id\":\"" . $this->db->escape(addcslashes($external_id, '\\%_')) . "\"%' LIMIT 1");
 		if($existing->num_rows){
 			$order_id = (int)$existing->row['order_id'];
 			if(!empty($data['statusId']) && !empty($match_order_statuses[$data['statusId']])){
