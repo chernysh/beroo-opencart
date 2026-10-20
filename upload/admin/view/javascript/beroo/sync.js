@@ -48,7 +48,9 @@ $(document).ready(function ($) {
 				setVariationCount(response['variationCount']);
 				setTimeElapsed(response['timeElapsed']);
 				if(response['errors'] && response['errors'].length){
-					resultDiv.append('<div style="color:#b00; margin-top:6px;">Помилки Beroo:<br>' + response['errors'].join('<br>') + '</div>');
+					var errDiv = $('<div style="color:#b00; margin-top:6px;">').text('Помилки Beroo:');
+					$.each(response['errors'], function(i, err){ errDiv.append('<br>', document.createTextNode(err)); });
+					resultDiv.append(errDiv);
 				}
 				if(response['finish']!=1){
 					getProducts();

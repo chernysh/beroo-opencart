@@ -77,7 +77,7 @@
 							<label class="col-sm-2 control-label" for="input-status">Зіставлення способів оплати</label>
 							<div class="col-sm-10">
 								<?php  if (!empty($beroo_payment_methods_error)) { ?>
-								<div class="alert alert-danger"><?php echo $beroo_payment_methods_error; ?></div>
+								<div class="alert alert-danger"><?php echo htmlspecialchars($beroo_payment_methods_error); ?></div>
 								<?php } ?>
 								<table class="table" style="width: auto; margin-bottom: 0;">
 								<thead>
@@ -111,7 +111,7 @@
 							<label class="col-sm-2 control-label" for="input-status">Зіставлення способів доставки</label>
 							<div class="col-sm-10">
 								<?php  if (!empty($beroo_shipping_methods_error)) { ?>
-								<div class="alert alert-danger"><?php echo $beroo_shipping_methods_error; ?></div>
+								<div class="alert alert-danger"><?php echo htmlspecialchars($beroo_shipping_methods_error); ?></div>
 								<?php } ?>
 								<table class="table" style="width: auto; margin-bottom: 0;">
 								<thead>
@@ -233,7 +233,7 @@
 						<label class="col-sm-2 control-label" for="input-status">Зіставлення статусів</label>
 						<div class="col-sm-10">
 							<?php  if (!empty($beroo_statuses_error)) { ?>
-							<div class="alert alert-danger"><?php echo $beroo_statuses_error; ?></div>
+							<div class="alert alert-danger"><?php echo htmlspecialchars($beroo_statuses_error); ?></div>
 							<?php } ?>
 							<table class="table" style="width: auto; margin-bottom: 0;">
 							<thead>
@@ -245,7 +245,7 @@
 							<tbody>
 								<?php foreach($beroo_statuses as $beroo_status){ ?>
 								<tr>
-									<td><?php echo $beroo_status['name']; ?></td>
+									<td><?php echo htmlspecialchars($beroo_status['name']); ?></td>
 									<td><select name="module_beroo_match_order_statuses[<?php echo $beroo_status['id']; ?>]" style="width:100%">
 										<option>---</option>
 										<?php foreach($order_statuses as $order_status){ ?>

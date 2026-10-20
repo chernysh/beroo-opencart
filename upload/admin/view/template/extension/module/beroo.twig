@@ -78,7 +78,7 @@
                         <label class="col-sm-2 control-label" for="input-status">Зіставлення способів оплати</label>
                         <div class="col-sm-10">
 							{% if beroo_payment_methods_error %}
-							<div class="alert alert-danger">{{ beroo_payment_methods_error }}</div>
+							<div class="alert alert-danger">{{ beroo_payment_methods_error|e }}</div>
 							{% endif %}
 							<table class="table" style="width: auto; margin-bottom: 0;">
 							<thead>
@@ -108,7 +108,7 @@
                         <label class="col-sm-2 control-label" for="input-status">Зіставлення способів доставки</label>
                         <div class="col-sm-10">
 							{% if beroo_shipping_methods_error %}
-							<div class="alert alert-danger">{{ beroo_shipping_methods_error }}</div>
+							<div class="alert alert-danger">{{ beroo_shipping_methods_error|e }}</div>
 							{% endif %}
 							<table class="table" style="width: auto; margin-bottom: 0;">
 							<thead>
@@ -225,7 +225,7 @@
 						<label class="col-sm-2 control-label" for="input-status">Зіставлення статусів</label>
 						<div class="col-sm-10">
 							{% if beroo_statuses_error %}
-							<div class="alert alert-danger"><?php echo $beroo_statuses_error; ?></div>
+							<div class="alert alert-danger">{{ beroo_statuses_error|e }}</div>
 							{% endif %}	
 							<table class="table" style="width: auto; margin-bottom: 0;">
 							<thead>
@@ -237,7 +237,7 @@
 							<tbody>
 								{% for beroo_status in beroo_statuses %}
 								<tr>
-									<td>{{ beroo_status.name }}</td>
+									<td>{{ beroo_status.name|e }}</td>
 									<td><select name="module_beroo_match_order_statuses[{{ beroo_status.id }}]" style="width:100%">
 										<option>---</option>
 										{% for order_status in order_statuses %}
