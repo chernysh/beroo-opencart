@@ -277,6 +277,11 @@ class ControllerExtensionModuleBeroo extends Controller
 	}
 
 	public function update(){
+		if(!$this->validKey()){
+			http_response_code(403);
+			echo 'Невірний formKey.';
+			die();
+		}
 		$time_start = time();
 		$product_bind = $this->config->get('module_beroo_product_bind') ? $this->config->get('module_beroo_product_bind') : 'id';
 		$feed = $this->config->get('module_beroo_feed');

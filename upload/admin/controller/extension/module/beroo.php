@@ -201,7 +201,7 @@ class ControllerExtensionModuleBeroo extends Controller
             $data['module_beroo_cron'] = $this->config->get('module_beroo_cron');
         }
 		
-        $data['module_beroo_import_stock_script'] = str_replace('admin/', '', $this->url->link('extension/module/beroo/update'));
+        $data['module_beroo_import_stock_script'] = str_replace('admin/', '', $this->url->link('extension/module/beroo/update','formKey='.$data['module_beroo_key']));
 
 		$data['module_beroo_set_order_status'] = str_replace('admin/', '', $this->url->link('extension/module/beroo/setOrderStatus','formKey='.$data['module_beroo_key']));
 
