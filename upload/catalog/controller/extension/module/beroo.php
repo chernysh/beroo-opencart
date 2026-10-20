@@ -390,8 +390,20 @@ class ControllerExtensionModuleBeroo extends Controller
 		echo 'Загальний час: ' . ($time_finish - $time_start) . '<br>';
 	}
 	
+	// Webhook key: X-Beroo-Key header, or legacy ?formKey= (what the Beroo backend sends today).
+	private function requestKey() {
+		if (isset($_SERVER['HTTP_X_BEROO_KEY'])) return $_SERVER['HTTP_X_BEROO_KEY'];
+		return isset($_GET['formKey']) ? $_GET['formKey'] : '';
+	}
+
+	private function validKey() {
+		$key = (string)$this->config->get('module_beroo_key');
+		$given = $this->requestKey();
+		return $key !== '' && is_string($given) && hash_equals($key, $given);
+	}
+
 	public function setOrderStatus(){
-		if(empty($_GET['formKey'])){
+		if($this->requestKey() === ''){
 			echo 'formKey не передано у веб-хуку.';
 			die();
 		};
@@ -400,7 +412,7 @@ class ControllerExtensionModuleBeroo extends Controller
 			echo 'На сайті не вказано ключ форми в налаштуваннях модуля Beroo.';
 			die();
 		}
-		if($_GET['formKey'] != $module_beroo_key){
+		if(!$this->validKey()){
 			echo 'Ключ форми у веб-хуку не збігається з ключем форми на сайті в налаштуваннях модуля Beroo.';
 			die();
 		}
@@ -452,11 +464,10 @@ class ControllerExtensionModuleBeroo extends Controller
 
 	// beroo -> OC: create an order that originated in Beroo (formKey-guarded webhook).
 	public function createOrder(){
-		if(empty($_GET['formKey'])){
+		if($this->requestKey() === ''){
 			echo 'formKey не передано у веб-хуку.'; die();
 		}
-		$module_beroo_key = $this->config->get('module_beroo_key');
-		if(empty($module_beroo_key) || $_GET['formKey'] != $module_beroo_key){
+		if(!$this->validKey()){
 			echo 'Невірний formKey.'; die();
 		}
 		$match_order_statuses = $this->config->get('module_beroo_match_order_statuses') ? $this->config->get('module_beroo_match_order_statuses') : [];
