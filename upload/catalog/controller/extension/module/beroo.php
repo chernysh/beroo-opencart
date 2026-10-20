@@ -299,17 +299,17 @@ class ControllerExtensionModuleBeroo extends Controller
 			$product_id = (string)$ids[0];
 			if(count($ids) == 1){
 				if($product_bind=='id'){
-					$sql = "SELECT `product_id` FROM `" . DB_PREFIX . "product` WHERE `product_id` = '" . $product_id . "' AND `quantity` != " . $quantity;
+					$sql = "SELECT `product_id` FROM `" . DB_PREFIX . "product` WHERE `product_id` = '" . (int)$product_id . "' AND `quantity` != " . $quantity;
 				}
 				if($product_bind=='model'){
-					$sql = "SELECT `product_id` FROM `" . DB_PREFIX . "product` WHERE `model` = '" . $product_id . "' AND `quantity` != " . $quantity;
+					$sql = "SELECT `product_id` FROM `" . DB_PREFIX . "product` WHERE `model` = '" . $this->db->escape($product_id) . "' AND `quantity` != " . $quantity;
 				}
 				if($product_bind=='sku'){
-					$sql = "SELECT `product_id` FROM `" . DB_PREFIX . "product` WHERE `sku` = '" . $product_id . "' AND `quantity` != ". $quantity;
+					$sql = "SELECT `product_id` FROM `" . DB_PREFIX . "product` WHERE `sku` = '" . $this->db->escape($product_id) . "' AND `quantity` != ". $quantity;
 				}
 				$result = $this->db->query($sql);
 				if($result->num_rows){
-					$product_ids_to_update = implode(', ', array_column($result->rows,'product_id'));
+					$product_ids_to_update = implode(', ', array_map('intval', array_column($result->rows,'product_id')));
 					$sql = "UPDATE `" . DB_PREFIX . "product` SET `quantity` = '" . $quantity . "' WHERE `product_id` IN (" . $product_ids_to_update . ")";
 					$this->db->query($sql);
 					$updated++;
@@ -319,18 +319,18 @@ class ControllerExtensionModuleBeroo extends Controller
 				$options = explode('-', $ids[1]);
 				if(count($options) == 2){
 					if($product_bind=='id'){
-						$opencart_product_ids = $product_id;
+						$opencart_product_ids = (int)$product_id;
 					}
 					if($product_bind=='model'){
-						$findProducts = $this->db->query("SELECT product_id FROM " . DB_PREFIX . "product WHERE `model` = '" . $product_id . "'");
+						$findProducts = $this->db->query("SELECT product_id FROM " . DB_PREFIX . "product WHERE `model` = '" . $this->db->escape($product_id) . "'");
 						if($findProducts->num_rows){
-							$opencart_product_ids = implode(', ', array_column($findProducts->rows,'product_id'));
+							$opencart_product_ids = implode(', ', array_map('intval', array_column($findProducts->rows,'product_id')));
 						}
 					}
 					if($product_bind=='sku'){
-						$findProducts = $this->db->query("SELECT product_id FROM " . DB_PREFIX . "product WHERE `sku` = '" . $product_id . "'");
+						$findProducts = $this->db->query("SELECT product_id FROM " . DB_PREFIX . "product WHERE `sku` = '" . $this->db->escape($product_id) . "'");
 						if($findProducts->num_rows){
-							$opencart_product_ids = implode(', ', array_column($findProducts->rows,'product_id'));
+							$opencart_product_ids = implode(', ', array_map('intval', array_column($findProducts->rows,'product_id')));
 						}
 					}
 					if($opencart_product_ids){
@@ -341,7 +341,7 @@ class ControllerExtensionModuleBeroo extends Controller
 						`quantity` != ". $quantity;
 						$result = $this->db->query($sql);
 						if($result->num_rows){
-							$product_ids_to_update = implode(', ', array_column($result->rows,'product_id'));
+							$product_ids_to_update = implode(', ', array_map('intval', array_column($result->rows,'product_id')));
 							$sql = "UPDATE `" . DB_PREFIX . "product_option_value` 
 							SET `quantity` = '" . $quantity . "' 
 							WHERE `product_id` IN(" . $product_ids_to_update . ") 
@@ -365,18 +365,18 @@ class ControllerExtensionModuleBeroo extends Controller
 		foreach($product_qty as $product_id => $quantity){
 			$sql = '';
 			if($product_bind=='id'){
-				$sql = "SELECT `product_id` FROM `" . DB_PREFIX . "product` WHERE `product_id` = '" . $product_id . "' AND `quantity` != " . $quantity;
+				$sql = "SELECT `product_id` FROM `" . DB_PREFIX . "product` WHERE `product_id` = '" . (int)$product_id . "' AND `quantity` != " . (int)$quantity;
 			}
 			if($product_bind=='model'){
-				$sql = "SELECT `product_id` FROM `" . DB_PREFIX . "product` WHERE `model` = '" . $product_id . "' AND `quantity` != " . $quantity;
+				$sql = "SELECT `product_id` FROM `" . DB_PREFIX . "product` WHERE `model` = '" . $this->db->escape($product_id) . "' AND `quantity` != " . (int)$quantity;
 			}
 			if($product_bind=='sku'){
-				$sql = "SELECT `product_id` FROM `" . DB_PREFIX . "product` WHERE `sku` = '" . $product_id . "' AND `quantity` != ". $quantity;
+				$sql = "SELECT `product_id` FROM `" . DB_PREFIX . "product` WHERE `sku` = '" . $this->db->escape($product_id) . "' AND `quantity` != ". (int)$quantity;
 			}
 			$result = $this->db->query($sql);
 			if($result->num_rows){
-				$product_ids_to_update = implode(', ', array_column($result->rows,'product_id'));
-				$sql = "UPDATE `" . DB_PREFIX . "product` SET `quantity` = '" . $quantity . "' WHERE `product_id` IN (" . $product_ids_to_update . ")";
+				$product_ids_to_update = implode(', ', array_map('intval', array_column($result->rows,'product_id')));
+				$sql = "UPDATE `" . DB_PREFIX . "product` SET `quantity` = '" . (int)$quantity . "' WHERE `product_id` IN (" . $product_ids_to_update . ")";
 				$this->db->query($sql);
 			}				
 		}
