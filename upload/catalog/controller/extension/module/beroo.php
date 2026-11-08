@@ -407,6 +407,112 @@ class ControllerExtensionModuleBeroo extends Controller
 		return $key !== '' && is_string($given) && hash_equals($key, $given);
 	}
 
+	// Повний перенос на Beroo: сирі рядки таблиць сторінками; Beroo тягне їх сам (X-Beroo-Key).
+	// Мапінг полів живе на боці Beroo — тут лише whitelist таблиць і порядок для стабільних сторінок.
+	private static $export_tables = array(
+		'language' => 'language_id',
+		'category' => 'category_id',
+		'category_description' => 'category_id, language_id',
+		'product' => 'product_id',
+		'product_description' => 'product_id, language_id',
+		'product_to_category' => 'product_id, category_id',
+		'product_image' => 'product_image_id',
+		'product_special' => 'product_special_id',
+		'product_attribute' => 'product_id, attribute_id, language_id',
+		'attribute_description' => 'attribute_id, language_id',
+		'product_option' => 'product_option_id',
+		'product_option_value' => 'product_option_value_id',
+		'option_description' => 'option_id, language_id',
+		'option_value_description' => 'option_value_id, language_id',
+		'manufacturer' => 'manufacturer_id',
+		'manufacturer_description' => 'manufacturer_id, language_id', // ocStore
+		'information' => 'information_id',
+		'information_description' => 'information_id, language_id',
+		'record' => 'record_id',                                // блог «SEO CMS» (статті)
+		'record_description' => 'record_id, language_id',
+		'record_to_blog' => 'record_id, blog_id',
+		'blog' => 'blog_id',
+		'blog_description' => 'blog_id, language_id',
+		'url_alias' => 'url_alias_id', // OpenCart 2.x
+		'seo_url' => 'seo_url_id',     // OpenCart 3.x
+		'review' => 'review_id',
+		'customer' => 'customer_id',
+		'order_status' => 'order_status_id, language_id',
+		'order' => 'order_id',
+		'order_product' => 'order_product_id',
+		'order_option' => 'order_option_id',
+		'order_total' => 'order_total_id',
+		'order_history' => 'order_history_id',
+	);
+	// Секрети й технічні сліди покупців Beroo не потрібні.
+	private static $export_hidden = array(
+		'customer' => array('password', 'salt', 'token', 'code', 'cart', 'wishlist', 'ip'),
+		'order' => array('ip', 'forwarded_ip', 'user_agent', 'accept_language'),
+	);
+	private static $export_config = array('config_name', 'config_owner', 'config_address', 'config_email', 'config_telephone', 'config_meta_title', 'config_meta_description', 'config_meta_keyword', 'config_language', 'config_currency', 'config_seo_url');
+
+	public function export() {
+		$this->response->addHeader('Content-Type: application/json; charset=utf-8');
+		if (!$this->validKey()) {
+			$this->response->addHeader('HTTP/1.1 403 Forbidden');
+			$this->response->setOutput(json_encode(array('success' => false, 'message' => 'invalid key')));
+			return;
+		}
+		$table = isset($this->request->get['table']) ? (string)$this->request->get['table'] : 'meta';
+		$flags = JSON_UNESCAPED_UNICODE | (defined('JSON_PARTIAL_OUTPUT_ON_ERROR') ? JSON_PARTIAL_OUTPUT_ON_ERROR : 0);
+
+		if ($table === 'meta') {
+			$tables = array();
+			foreach (array_keys(self::$export_tables) as $name) {
+				if ($this->db->query("SHOW TABLES LIKE '" . $this->db->escape(DB_PREFIX . $name) . "'")->num_rows) {
+					$tables[] = $name;
+				}
+			}
+			$config = array();
+			foreach (self::$export_config as $key) {
+				$config[$key] = $this->config->get($key);
+			}
+			$language_id = $this->config->get('module_beroo_product_language') ? $this->config->get('module_beroo_product_language') : $this->config->get('config_language_id');
+			$this->response->setOutput(json_encode(array(
+				'success' => true,
+				'version' => VERSION,
+				'language_id' => (int)$language_id,
+				'product_bind' => $this->config->get('module_beroo_product_bind') ? $this->config->get('module_beroo_product_bind') : 'id',
+				'image_url' => (defined('HTTPS_SERVER') && HTTPS_SERVER ? HTTPS_SERVER : HTTP_SERVER) . 'image/',
+				'tables' => $tables,
+				'config' => $config,
+			), $flags));
+			return;
+		}
+
+		if (!isset(self::$export_tables[$table])) {
+			$this->response->addHeader('HTTP/1.1 400 Bad Request');
+			$this->response->setOutput(json_encode(array('success' => false, 'message' => 'unknown table')));
+			return;
+		}
+		$offset = isset($this->request->get['offset']) ? max(0, (int)$this->request->get['offset']) : 0;
+		$limit = isset($this->request->get['limit']) ? min(1000, max(1, (int)$this->request->get['limit'])) : 500;
+		$rows = array();
+		if ($this->db->query("SHOW TABLES LIKE '" . $this->db->escape(DB_PREFIX . $table) . "'")->num_rows) {
+			// Модулі різних збірок мають свої колонки: сортуємо лише за наявними (стабільні сторінки).
+			$columns = array();
+			foreach ($this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . $table . "`")->rows as $column) {
+				$columns[] = $column['Field'];
+			}
+			$order = array_intersect(array_map('trim', explode(',', self::$export_tables[$table])), $columns);
+			$order = $order ? '`' . implode('`, `', $order) . '`' : '1';
+			$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . $table . "` ORDER BY " . $order . " LIMIT " . $offset . "," . $limit);
+			$hidden = isset(self::$export_hidden[$table]) ? self::$export_hidden[$table] : array();
+			foreach ($query->rows as $row) {
+				foreach ($hidden as $column) {
+					unset($row[$column]);
+				}
+				$rows[] = $row;
+			}
+		}
+		$this->response->setOutput(json_encode(array('success' => true, 'table' => $table, 'rows' => $rows), $flags));
+	}
+
 	public function setOrderStatus(){
 		if($this->requestKey() === ''){
 			echo 'formKey не передано у веб-хуку.';

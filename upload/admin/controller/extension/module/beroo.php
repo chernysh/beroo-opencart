@@ -164,6 +164,7 @@ class ControllerExtensionModuleBeroo extends Controller
             $data['cancel'] = $this->url->link('extension/extension', $this->token.'=' . $this->session->data[$this->token] . '&type=module', true);
         }
         $data['synchronize'] = $this->url->link('extension/module/beroo/sync', $this->token.'=' . $this->session->data[$this->token] . '&type=module', true);
+        $data['import_all'] = $this->url->link('extension/module/beroo/importAll', $this->token.'=' . $this->session->data[$this->token], true);
 
         if (isset($this->request->post['module_beroo_domain'])) {
             $data['module_beroo_domain'] = $this->request->post['module_beroo_domain'];
@@ -327,6 +328,26 @@ class ControllerExtensionModuleBeroo extends Controller
         return !$this->error;
     }
     
+    // «Імпортувати все на BEROO»: Beroo фоном сам забирає категорії, товари, сторінки, SEO й замовлення.
+    public function importAll()
+    {
+        $json = array();
+        if (!$this->user->hasPermission('modify', 'extension/module/beroo')) {
+            $json['error'] = 'У вас немає доступу до цього модуля!';
+        } elseif (!$this->berooLibrary) {
+            $json['error'] = 'Увімкніть модуль і збережіть налаштування.';
+        } else {
+            $response = $this->berooLibrary->startFullImport(HTTPS_CATALOG ? HTTPS_CATALOG : HTTP_CATALOG);
+            if ($this->berooLibrary->hasErrors()) {
+                $json['error'] = implode('; ', $this->berooLibrary->getErrors());
+            } else {
+                $json['success'] = isset($response['message']) ? $response['message'] : 'Імпорт запущено.';
+            }
+        }
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
     public function sync()
     {
 		$limit = 100;

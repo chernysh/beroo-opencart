@@ -25,6 +25,25 @@ $(document).ready(function ($) {
         });
     }
 
+    $('#beroo-import-all').on('click', function () {
+        var btn = $(this), out = $('#beroo-import-all-result');
+        if (!confirm('Перенести на BEROO все: категорії, товари, сторінки, SEO та всі замовлення?')) {
+            return;
+        }
+        btn.prop('disabled', true);
+        out.attr('class', 'text-muted').text('Запускаємо імпорт…');
+        $.ajax({type: 'POST', url: btn.data('url'), dataType: 'json'})
+            .done(function (r) {
+                out.attr('class', r.error ? 'text-danger' : 'text-success').text(r.error || r.success);
+            })
+            .fail(function (x) {
+                out.attr('class', 'text-danger').text('Помилка запиту: HTTP ' + x.status);
+            })
+            .always(function () {
+                btn.prop('disabled', false);
+            });
+    });
+
     function getProducts() {
 		currentOffset = document.getElementById('currentOffset').innerHTML;
 		variationCount = document.getElementById('variationCount').innerHTML;

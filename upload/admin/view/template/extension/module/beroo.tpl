@@ -174,6 +174,11 @@
 							</div>
 						</div>
                     </div>
+                    <div class="form-group" style="padding-left: 15px; border-bottom: 1px solid #ededed;">
+                        <button type="button" class="btn btn-danger" id="beroo-import-all" data-url="<?php echo $import_all; ?>"><i class="fa fa-cloud-upload"></i>&nbsp; Імпортувати все на BEROO</button>
+                        <div class="help-block">Повний перенос: категорії, товари з фото й опціями, виробники, сторінки й статті блогу, SEO (мета-теги, а старі адреси сайту — 301-редиректами), відгуки, покупці та всі замовлення зі статусами. Іде у фоні на боці BEROO; повторний запуск оновлює, а не дублює.</div>
+                        <div id="beroo-import-all-result"></div>
+                    </div>
                     <?php } ?>
                     
                     <h3 style="margin-top: 33px;">Імпорт залишків на складі з Beroo</h3>

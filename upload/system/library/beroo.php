@@ -104,6 +104,12 @@ class Beroo
 		$response = $this->executeApi($url);
 		return $response;
 	}
+
+	// «Імпортувати все на BEROO»: Beroo фоном забирає весь сайт через catalog export().
+	public function startFullImport($site_url){
+		$url = $this->createUrl('/api/v1/opencart/import/');
+		return $this->execute($url, array('form' => $this->_key, 'url' => $site_url));
+	}
 	
     protected function execute($actionUrl, $params = array())
 	{
