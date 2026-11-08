@@ -433,6 +433,19 @@ class ControllerExtensionModuleBeroo extends Controller
 		'record_to_blog' => 'record_id, blog_id',
 		'blog' => 'blog_id',
 		'blog_description' => 'blog_id, language_id',
+		'url_alias_blog' => 'url_alias_id',                     // SEO CMS: адреси блогу з мовою
+		'ocfilter_option' => 'option_id',                       // OCFilter: фільтри й SEO-сторінки фільтрів
+		'ocfilter_option_description' => 'option_id, language_id',
+		'ocfilter_option_value' => 'value_id',
+		'ocfilter_option_value_description' => 'value_id, language_id',
+		'ocfilter_option_value_to_product' => 'ocfilter_option_value_to_product_id',
+		'ocfilter_page' => 'ocfilter_page_id',
+		'ocfilter_page_description' => 'ocfilter_page_id, language_id',
+		'faq' => 'faq_id',
+		'faq_description' => 'faq_id, language_id',
+		'redirector' => 'redirect_id',                          // модуль редиректів
+		'product_to_store' => 'product_id, store_id',
+		'coupon' => 'coupon_id',
 		'url_alias' => 'url_alias_id', // OpenCart 2.x
 		'seo_url' => 'seo_url_id',     // OpenCart 3.x
 		'review' => 'review_id',
@@ -449,7 +462,7 @@ class ControllerExtensionModuleBeroo extends Controller
 		'customer' => array('password', 'salt', 'token', 'code', 'cart', 'wishlist', 'ip'),
 		'order' => array('ip', 'forwarded_ip', 'user_agent', 'accept_language'),
 	);
-	private static $export_config = array('config_name', 'config_owner', 'config_address', 'config_email', 'config_telephone', 'config_meta_title', 'config_meta_description', 'config_meta_keyword', 'config_language', 'config_currency', 'config_seo_url');
+	private static $export_config = array('config_name', 'config_owner', 'config_address', 'config_email', 'config_telephone', 'config_meta_title', 'config_meta_description', 'config_meta_keyword', 'config_language', 'config_currency', 'config_seo_url', 'config_stock_checkout');
 
 	public function export() {
 		$this->response->addHeader('Content-Type: application/json; charset=utf-8');
